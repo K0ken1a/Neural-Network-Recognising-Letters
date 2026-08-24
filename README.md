@@ -12,5 +12,6 @@ This project is my first introduction into the mechanics behind machine learning
 
 1. Clone this repository
 2. Type in the command 'pip install -r requirements.txt'
-3. Run the code and feel free to change the index specified to test the model's accuracy on different letters
-4. It is also possible to change the networks shape by passing different parameters to the NeuralNetwork object
+3. Download the following dataset: https://www.kaggle.com/datasets/sachinpatel21/az-handwritten-alphabets-in-csv-format
+4. Run the code and feel free to change the index specified to test the model's accuracy on different letters
+5. It is also possible to change the networks shape by passing different parameters to the NeuralNetwork object
