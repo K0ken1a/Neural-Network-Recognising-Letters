@@ -7,6 +7,7 @@ class NeuralNetwork():
         self.layers = layers
         self.layerNeurons = layerNeurons
 
+        # Creating weights and biases for network
         self.network = [np.random.randn(self.layerNeurons[0], self.features) * np.sqrt(2.0 / self.features), np.zeros((self.layerNeurons[0] ,1))]
 
         for i in range(1, self.layers):
@@ -33,9 +34,13 @@ class NeuralNetwork():
     def forwardProp(self, x):
         self.finalActivations = []
         prevA = x
+
+        # Passing the data through the network
         for i in range(self.layers):
-            W, b = self.network[2*i], self.network[2*i + 1]
-            z = np.matmul(W, prevA) + b
+            w, b = self.network[2*i], self.network[2*i + 1]
+            z = np.matmul(w, prevA) + b
+
+            # ReLU is activation function except for the last layer which is softmax
             a = self.softmax(z) if i == self.layers - 1 else self.reLU(z)
             self.finalActivations.extend([z, a])
             prevA = a
@@ -50,6 +55,7 @@ class NeuralNetwork():
         aL = self.finalActivations[2*L - 1]
         dZ = aL - oneHot
 
+        # Finding the error of each layer's weights and biases
         for i in reversed(range(L)):
             prevA = x if i == 0 else self.finalActivations[2*(i-1) + 1]
 
@@ -59,14 +65,16 @@ class NeuralNetwork():
             grads[2*i + 1] = db
 
             if i > 0:
-                W = self.network[2*i]
+                w = self.network[2*i]
                 z_prev = self.finalActivations[2*(i-1)]
-                dA_prev = np.matmul(W.T, dZ)
+                dA_prev = np.matmul(w.T, dZ)
                 dZ = dA_prev * self.reLU_deriv(z_prev)
 
         return grads
 
     def updateParams(self, grads, lr):
+
+        # Adjusting weights and biases based on learning rate
         for j in range(len(self.network)):
             self.network[j] -= lr * grads[j]
 
@@ -79,11 +87,13 @@ class NeuralNetwork():
     def gradientDescent(self, x, y, epochs=10, batchSize=128, learningRate=0.1):
         m = x.shape[1]
 
+        # Shuffles the data for every pass through entire data set
         for epoch in range(epochs):
             permutation = np.random.permutation(m)
             xShuffled = x[:, permutation]
             yShuffled = y[permutation]
-            
+
+            # Splits data into smaller batches to train with
             for start in range(0, m, batchSize):
                 end = min(start + batchSize, m)
                 
@@ -93,10 +103,10 @@ class NeuralNetwork():
                 self.forwardProp(xMini)
                 grads = self.backProp(xMini, yMini)   
                 self.updateParams(grads, learningRate)
-                
+
+            # Displays accuracy of model after every full pass through data set    
             self.forwardProp(x)
             acc = self.getAccuracy(self.getPredictions(self.finalActivations[-1]), y)
-            
             print(f"Epoch {epoch + 1}/{epochs} | Accuracy: {acc:.4f}")
 
     def predict(self, index, yData, yLabels):
@@ -105,11 +115,13 @@ class NeuralNetwork():
 
         self.forwardProp(sampleImg)
 
+        # Compares prediction to actual character
         print("Prediction:", chr(self.getPredictions(self.finalActivations[-1])[0] + 65))
         print("Actual Character:", chr(sampleLabel + 65))
 
         sampleImg = sampleImg.reshape(28, 28)
 
+        # Shows image of letter being predicted
         plt.imshow(sampleImg, cmap='gray')
         plt.title(f"Label: {sampleLabel}")
         plt.axis('off')
